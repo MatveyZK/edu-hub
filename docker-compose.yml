@@ -15,19 +15,20 @@ services:
       - postgres_data:/var/lib/postgresql/data 
     
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d db"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   migrations:
-    image: pressly/goose:v3.21.1
+    image: ghcr.io/kukymbr/goose-docker:latest
     container_name: goose_migrations
-
+    environment:
+      - GOOSE_DRIVER=postgres
+      - GOOSE_DBSTRING=host=postgres port=5432 user=${DB_USER} password=${DB_PASSWORD} dbname=${DB_NAME}
+      - GOOSE_VERBOSE=true
     volumes:
       - ./migrations:/migrations
-    
-    command: postgres "postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}?sslmode=disable" up
     depends_on:
       postgres:
         condition: service_healthy
