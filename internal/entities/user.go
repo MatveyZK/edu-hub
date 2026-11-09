@@ -12,7 +12,7 @@ type User struct {
 	RoleID       int       `json:"role_id" db:"role_id"`
 }
 
-type CreateUserInput struct {
+type CreateUserEntry struct {
 	FirstName    string `json:"first_name"`
 	LastName     string `json:"last_name"`
 	Email        string `json:"email"`
@@ -20,7 +20,7 @@ type CreateUserInput struct {
 	RoleID       int    `json:"role_id"`
 }
 
-type UpdateUserInput struct {
+type UpdateUserEntry struct {
 	FirstName    *string `json:"first_name"`
 	LastName     *string `json:"last_name"`
 	Email        *string `json:"email"`

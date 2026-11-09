@@ -32,14 +32,14 @@ func (s *UserStore) GetAll() ([]entities.User, error) {
 }
 
 func (s *UserStore) GetByRoleID(role_id int) ([]entities.User, error) {
-	var students []entities.User
+	var users []entities.User
 
 	query := `
 	SELECT id, first_name, last_name, email, created_at, password_hash, role_id
 	FROM users
 	WHERE role_id = $1;`
 
-	err := s.db.Select(&students, query, role_id)
+	err := s.db.Select(&users, query, role_id)
 
 	if err == sql.ErrNoRows {
 		return nil, fmt.Errorf(`users with role_id %d not found`, role_id)
@@ -49,24 +49,29 @@ func (s *UserStore) GetByRoleID(role_id int) ([]entities.User, error) {
 		return nil, err
 	}
 
-	return students, nil
+	return users, nil
 }
 
 func (s *UserStore) GetStudents() ([]entities.User, error) {
-	var students []entities.User
+	/*var role entities.Role
+	var role_name = "student"
 
 	query := `
-	SELECT id, first_name, last_name, email, created_at, password_hash, role_id
-	FROM users
-	WHERE role_id = $1;`
+	SELEСT id
+	FROM roles
+	WHERE role_name = $1`
 
-	err := s.db.Select(&students, query, 1)
+	err := s.db.Get(&role, query, role_name)
+
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf(`role %s not found`, role_name)
+	}
 
 	if err != nil {
 		return nil, err
-	}
+	}*/
 
-	return students, nil
+	return GetByRoleID(2) // why can't it be found?
 }
 
 func (s *UserStore) GetByID(id int) (*entities.User, error) {
@@ -75,7 +80,7 @@ func (s *UserStore) GetByID(id int) (*entities.User, error) {
 	query := `
 	SELECT id, first_name, last_name, email, created_at, password_hash, role_id
 	FROM users
-	WHERE role_id = $1;`
+	WHERE id = $1;`
 
 	err := s.db.Get(&user, query, id)
 
@@ -90,15 +95,15 @@ func (s *UserStore) GetByID(id int) (*entities.User, error) {
 	return &user, nil
 }
 
-func (s *UserStore) Create(input entities.CreateUserInput) (*entities.User, error) {
+func (s *UserStore) CreateUser(entry entities.CreateUserEntry) (*entities.User, error) {
 	var user entities.User
 
 	query := `
-	INSERT INTO users 
+	INSERT INTO users
 	(first_name, last_name, email, password_hash, role_id)
 	VALUES ($1, $2, $3, $4, $5)`
 
-	err := s.db.QueryRowx(query, input.FirstName, input.LastName, input.Email, input.PasswordHash, input.RoleID).StructScan(&user)
+	err := s.db.QueryRowx(query, entry.FirstName, entry.LastName, entry.Email, entry.PasswordHash, entry.RoleID).StructScan(&user)
 
 	if err != nil {
 		return nil, err
@@ -107,7 +112,7 @@ func (s *UserStore) Create(input entities.CreateUserInput) (*entities.User, erro
 	return &user, nil
 }
 
-func (s *UserStore) Update(id int, input entities.UpdateUserInput) (*entities.User, error) {
+func (s *UserStore) UpdateUser(id int, entry entities.UpdateUserEntry) (*entities.User, error) {
 	user, err := s.GetByID(id)
 
 	if err != nil {
@@ -115,7 +120,7 @@ func (s *UserStore) Update(id int, input entities.UpdateUserInput) (*entities.Us
 	}
 
 	query := `
-	UPDATE users 
+	UPDATE users
 	SET first_name=$1, last_name=$2, email=$3, password_hash=$4
 	WHERE id=$5;`
 
@@ -125,23 +130,23 @@ func (s *UserStore) Update(id int, input entities.UpdateUserInput) (*entities.Us
 		return nil, err
 	}
 
-	if input.FirstName != nil {
-		user.FirstName = *input.FirstName
+	if entry.FirstName != nil {
+		user.FirstName = *entry.FirstName
 	}
-	if input.LastName != nil {
-		user.LastName = *input.LastName
+	if entry.LastName != nil {
+		user.LastName = *entry.LastName
 	}
-	if input.Email != nil {
-		user.Email = *input.Email
+	if entry.Email != nil {
+		user.Email = *entry.Email
 	}
-	if input.PasswordHash != nil {
-		user.PasswordHash = *input.PasswordHash
+	if entry.PasswordHash != nil {
+		user.PasswordHash = *entry.PasswordHash
 	}
 
 	return user, nil
 }
 
-func (s *UserStore) Delete(id int) error {
+func (s *UserStore) DeleteUser(id int) error {
 	query := `DELETE FROM users WHERE id=$1;`
 
 	result, err := s.db.Exec(query, id)
@@ -155,8 +160,8 @@ func (s *UserStore) Delete(id int) error {
 		return err
 	}
 
-	if rows == 0 {
-		return fmt.Errorf(`user with id %d noy found`, id)
+	if rows != 1 {
+		return fmt.Errorf(`user with id %d not found`, id)
 	}
 
 	return nil
