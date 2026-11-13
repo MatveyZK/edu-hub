@@ -1,5 +1,18 @@
 # edu-hub 
 ## commands
+
+Build project:
+
+```bash
+make
+```
+
+Start server (flag is optional):
+
+```bash
+./server -config-path path
+```
+
 Start container:
 
 ```bash

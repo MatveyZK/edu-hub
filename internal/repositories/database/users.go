@@ -52,28 +52,29 @@ func (s *UserStore) GetByRoleID(role_id int) ([]entities.User, error) {
 	return users, nil
 }
 
-func (s *UserStore) GetStudents() ([]entities.User, error) {
-	/*var role entities.Role
-	var role_name = "student"
+/*
+	func (s *UserStore) GetStudents() ([]entities.User, error) {
+		var role entities.Role
+		var role_name = "student"
 
-	query := `
-	SELEСT id
-	FROM roles
-	WHERE role_name = $1`
+		query := `
+		SELEСT id
+		FROM roles
+		WHERE role_name = $1`
 
-	err := s.db.Get(&role, query, role_name)
+		err := s.db.Get(&role, query, role_name)
 
-	if err == sql.ErrNoRows {
-		return nil, fmt.Errorf(`role %s not found`, role_name)
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf(`role %s not found`, role_name)
+		}
+
+		if err != nil {
+			return nil, err
+		}
+
+		return GetByRoleID(2) // why can't it be found?
 	}
-
-	if err != nil {
-		return nil, err
-	}*/
-
-	return GetByRoleID(2) // why can't it be found?
-}
-
+*/
 func (s *UserStore) GetByID(id int) (*entities.User, error) {
 	var user entities.User
 

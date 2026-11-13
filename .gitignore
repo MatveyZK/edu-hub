@@ -1,6 +1,8 @@
 /build/
 main
 main.exe
+server
+server.exe
 
 .idea/
 .vscode/
